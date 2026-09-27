@@ -38,12 +38,8 @@ git submodule update --init --recursive
 进入刚下载的项目目录，执行：
 
 ```bash
-cd /path/to/virtuoso-canvas/analog-canvas
-pnpm install --frozen-lockfile
-
-cd ..
-npm run build
-npm test
+cd /path/to/virtuoso-canvas
+npm run setup
 ```
 
 这些命令只在首次安装、重新 clone 或更新项目代码后执行。它们的作用是：
@@ -51,6 +47,15 @@ npm test
 - `pnpm install`：安装固定版本的 Analog Canvas 上游依赖；
 - `npm run build`：生成 Virtuoso 窗口和转换器需要的 `dist/`；
 - `npm test`：检查安装是否正常。
+
+如果服务器不能访问互联网，先在一台可以联网的同版本 Linux 机器上完成 `npm run setup`，然后把整个项目目录（包括 `analog-canvas/node_modules/` 和 `dist/`）复制或打包到服务器。服务器上不需要重新下载依赖，可以运行：
+
+```bash
+cd /path/to/virtuoso-canvas
+node scripts/setup.mjs --offline --skip-tests
+```
+
+`--offline` 要求 pnpm 的依赖已经在本机缓存中；如果把已经安装好的 `node_modules/` 和 `dist/` 一起复制过来，通常可以直接使用。Node.js、Python 和 Virtuoso 本身仍需由服务器管理员预先安装，项目脚本不能离线替你安装系统软件。
 
 测试通过后，才进行下一节的 Virtuoso 配置。
 
@@ -88,6 +93,14 @@ $VC_ROOT/personal/config.json
 load("/path/to/virtuoso-canvas/skill/virtuoso_canvas_ui.il")
 VCUIShow()
 ```
+
+如果希望每次启动 Virtuoso 自动加载 UI，把下面一行加入你自己的 `.cdsinit`（不要修改项目目录中的文件）：
+
+```lisp
+load("/path/to/virtuoso-canvas/skill/virtuoso_canvas_init.il")
+```
+
+启动 Virtuoso 前必须已经设置 `VC_ROOT`。这个初始化脚本只加载窗口和菜单，不会自动扫描或导出设计。
 
 加载成功后会出现 **Virtuoso Canvas** 窗口。已有的 schematic 窗口还会出现 **Schematic to Canvas** 菜单；也可以从该菜单打开导出界面。
 

@@ -24,6 +24,7 @@
     "node": ">=24"
   },
   "scripts": {
+    "setup": "node scripts/setup.mjs",
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
     "cli": "node dist/packages/cli/src/main.js",
