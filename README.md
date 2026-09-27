@@ -1,68 +1,115 @@
 # Virtuoso → Analog Canvas
 
-把 Virtuoso schematic 导出为 Analog Canvas 可编辑工程。每个人在自己的工作区安装，离线运行，不需要 Virtuoso Bridge、大模型或外部网络服务。提供 CLI 和 Virtuoso schematic 菜单。
+这个项目把 Cadence Virtuoso 的 schematic 转换成可以在 Analog Canvas 中继续编辑的工程。转换在本机完成，原理图、PDK 和个人映射不会上传到网络。普通用户主要通过 Virtuoso 窗口使用，不需要学习命令行。
 
-先了解实现与输入输出：[代码结构、运行流程与中间文件说明](docs/代码与文件流程.md)。
+## 一、把项目安装到服务器
 
-准备建立 Git 仓库前，请先看 [Git 跟踪范围](docs/Git跟踪范围.md)；个人配置、测试设计和旧版上游检出不应直接提交。
+项目必须安装在**运行 Virtuoso 的同一台服务器**上。不要只复制一个编译后的 `dist/` 目录。
 
-发布目录和上游 PR 暂存方式见 [发布与上游集成](docs/发布与上游集成.md)。两个产物都从 `packages/virtuoso-import/` 这一份转换核心生成，不维护第二份算法。
+登录服务器后，先确认软件版本：
 
-## 开始前：你需要准备什么
+```bash
+node --version       # 需要 24 或更高
+pnpm --version       # 需要 11.16 或更高
+python3 --version    # 需要 3.9 或更高
+```
 
-这个项目不是已经打包好的 Virtuoso 插件。使用 UI 前，需要在同一台机器上准备：
+如果服务器还没有 Node.js、pnpm 或 Python，请先按服务器管理员的方式安装。项目不会替你安装系统软件。
 
-- 已安装并可正常启动的 Cadence Virtuoso，且目标 schematic 可以在该环境中打开；
-- Node.js 24 或更新版本；
-- pnpm 11.16 或更新版本；
-- Python 3.9 或更新版本；
-- 本仓库及其 `analog-canvas` submodule；
-- 对项目目录和导出目录的读写权限。
+使用 Git 下载项目（推荐）：
 
-项目会在本机调用 Node、Python 和 Analog Canvas 上游代码，不会把原理图、PDK 或映射发送到网络。首次使用需要安装依赖并构建一次；以后只有更新代码或重新克隆工作区时才需要重新构建。
+```bash
+cd /path/where/you/keep/projects
+git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
+cd virtuoso-canvas
+```
 
-如果项目不在默认目录，请在启动 Virtuoso **之前**设置安装目录：
+其中 `/path/where/you/keep/projects` 换成你自己的目录，例如 `$HOME/projects`。如果你已经用普通方式 clone 过项目，需要补下载上游 submodule：
+
+```bash
+cd /path/to/virtuoso-canvas
+git submodule update --init --recursive
+```
+
+也可以在 GitHub 页面选择 **Code → Download ZIP** 下载源码，但 ZIP 不会自动包含 `analog-canvas` 上游目录。使用 ZIP 时仍需单独取得与 `upstream-lock.json` 对应的上游代码，因此推荐使用上面的 `git clone --recurse-submodules`。
+
+## 二、首次安装依赖并构建
+
+进入刚下载的项目目录，执行：
+
+```bash
+cd /path/to/virtuoso-canvas/analog-canvas
+pnpm install --frozen-lockfile
+
+cd ..
+npm run build
+npm test
+```
+
+这些命令只在首次安装、重新 clone 或更新项目代码后执行。它们的作用是：
+
+- `pnpm install`：安装固定版本的 Analog Canvas 上游依赖；
+- `npm run build`：生成 Virtuoso 窗口和转换器需要的 `dist/`；
+- `npm test`：检查安装是否正常。
+
+测试通过后，才进行下一节的 Virtuoso 配置。
+
+## 三、告诉 Virtuoso 项目在哪里
+
+如果项目路径是默认的 `/home/userone/projects/virtuoso-canvas`，可以直接使用。其他路径必须在**启动 Virtuoso 之前**设置 `VC_ROOT`：
 
 ```bash
 export VC_ROOT=/path/to/virtuoso-canvas
 ```
 
-如果系统中有多个 Node 或 Python，可以同时指定：
+然后从这个终端启动 Virtuoso，或者把这行加入你启动 Virtuoso 使用的环境脚本。UI 会从 `VC_ROOT` 查找已经构建好的 `dist/`、SKILL 文件和上游目录。
+
+如果服务器上有多个 Node.js 或 Python，再设置对应的可执行文件：
 
 ```bash
 export VC_NODE_PATH=/path/to/node
 export VC_PYTHON=/path/to/python3
 ```
 
-个人映射和配置默认写入 `$VC_ROOT/personal/`。需要放到其他位置时，在启动 Virtuoso 前设置 `VC_MAPPING_PATH` 和 `VC_CONFIG_PATH`。这些文件包含本机或 PDK 相关信息，默认已被 Git 忽略。
+个人映射和显示配置默认保存在：
 
-## 第一次使用：Virtuoso 窗口
-
-完成下面的安装和构建后，才加载 Virtuoso 窗口。构建会编译固定版本的 Analog Canvas、TypeScript CLI 以及 UI 调用的后端；它不是每次导出的操作。
-
-```bash
-cd /home/userone/projects/virtuoso-canvas
-npm run build
+```text
+$VC_ROOT/personal/mappings.json
+$VC_ROOT/personal/config.json
 ```
 
+这两个文件是本机配置，不需要提交到 Git。若要放在其他目录，在启动 Virtuoso 前设置 `VC_MAPPING_PATH` 和 `VC_CONFIG_PATH`。
+
+## 四、在 Virtuoso 中打开窗口
+
+在 Virtuoso CIW 中执行下面两行。路径要改成你的实际项目路径：
+
 ```lisp
-load("/home/userone/projects/virtuoso-canvas/skill/virtuoso_canvas_ui.il")
+load("/path/to/virtuoso-canvas/skill/virtuoso_canvas_ui.il")
 VCUIShow()
 ```
 
-窗口中的典型流程：
+加载成功后会出现 **Virtuoso Canvas** 窗口。已有的 schematic 窗口还会出现 **Schematic to Canvas** 菜单；也可以从该菜单打开导出界面。
 
-1. 在 schematic 窗口打开目标原理图，点击 **Scan devices** 扫描器件。
-2. 查看器件、源引脚和当前目标符号。选中器件后点击 **Edit mapping...**，选择 Analog Canvas 符号并逐个对应引脚和参数。
-3. 点击 **Use this run** 仅在本次导出中使用规则；点击 **Save personal** 将规则保存到 `personal/mappings.json`，以后遇到相同 library/cell 会自动复用。
-4. 在菜单 **Schematic to Canvas → Export schematic...** 中选择输出目录和工程文件名，设置 Power/Ground nets 以及总线、禁用实例等选项，然后点击 **Export project**。
-5. 在 Analog Canvas 中打开生成的 `.icproj.json`。**Open Analog Canvas** 会启动或复用本机 `127.0.0.1:4173` 的 Canvas 服务，但不会自动导入工程。
+## 五、第一次转换
 
-映射编辑器中的 **Browse all symbols...** 可以查看完整符号目录；只有标记为 `supported` 的符号可以直接用于转换。未匹配器件默认生成可携带引脚的通用方框。窗口输出的成功、警告和失败原因会显示在 CIW 中。
+1. 在 Virtuoso 中打开目标 schematic。
+2. 在 Virtuoso Canvas 窗口点击 **Scan devices**，读取器件和网络。
+3. 检查扫描表。对没有自动匹配的器件，点击 **Edit mapping...**，选择目标符号并对应引脚、参数。
+4. 点击 **Use this run** 只在本次转换使用设置；确认无误后点击 **Save personal**，以后相同的 library/cell 可以自动复用。
+5. 打开 **Schematic to Canvas → Export schematic...**，选择输出目录和工程文件名。
+6. 按需要设置电源网络、地网络、总线和禁用实例选项，点击 **Export project**。
+7. 导出成功后，用 Analog Canvas 打开生成的 `.icproj.json` 文件。点击 **Open Analog Canvas** 只会打开本机 Canvas 页面，不会自动导入工程。
 
-窗口使用 `VC_ROOT` 查找安装目录；未设置时默认使用 `/home/userone/projects/virtuoso-canvas`。需要其他个人配置或映射时，可在启动 Virtuoso 前设置 `VC_CONFIG_PATH` 和 `VC_MAPPING_PATH`。
+输出目录需要提前存在，并且用户对它有写权限。同名工程或报告出现时，窗口会询问是否覆盖。失败原因和可操作的警告会显示在 Virtuoso CIW 中。
 
-详细的窗口协议和结果回执见 [SKILL 前端协议](docs/SKILL前端协议.md)，配置字段见 [配置参考](docs/配置参考.md)。
+## 六、遇到问题时先检查
+
+- **找不到文件或 Node**：确认 `VC_ROOT` 已在启动 Virtuoso 前设置，并确认已经执行 `npm run build`。
+- **提示缺少上游模块**：确认 clone 时使用了 `--recurse-submodules`，或执行 `git submodule update --init --recursive`。
+- **窗口能打开但扫描失败**：确认目标 schematic 已保存，并检查服务器用户对项目目录、`/tmp` 和输出目录有读写权限。
+- **器件没有匹配**：在 UI 中编辑 mapping；未匹配器件默认会生成通用方框，也可以查看 [映射表指南](docs/mapping-packages.zh-CN.md)。
+- **需要换机器或换目录**：重新设置 `VC_ROOT`，并在新目录重新执行依赖安装和构建。
 
 ## 文档导航
 
@@ -81,21 +128,6 @@ VCUIShow()
 - [Git 跟踪范围](docs/Git跟踪范围.md)：哪些本机目录应忽略、哪些源码应提交。
 
 这些文档都不包含个人 PDK 文件或真实设计数据，因此可以随源码发布。开发流程说明不是 UI 使用必读内容；如果只面向普通用户，可以保留它们在仓库中但不放入首页操作步骤。
-
-## 安装与构建（首次使用或更新代码时）
-
-`analog-canvas/` 是由 `upstream-lock.json` 固定版本的 Git submodule。首次克隆请使用：
-
-```bash
-git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
-cd virtuoso-canvas/analog-canvas
-pnpm install --frozen-lockfile
-cd ..
-npm run build
-npm test
-```
-
-`pnpm install --frozen-lockfile` 只在 `analog-canvas/` 中执行；`npm run build` 在仓库根目录执行。构建成功后才会生成 `dist/`，Virtuoso UI 和 CLI 都依赖它。不要提交 `personal/`、`work/`、`dist/`、`node_modules/`、日志、环境文件或真实设计快照。完整跟踪范围见 [Git 跟踪范围](docs/Git跟踪范围.md)。
 
 ## CLI：批处理和调试入口
 
