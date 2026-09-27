@@ -1,6 +1,8 @@
 # Virtuoso to Analog Canvas
 
-把 Cadence Virtuoso 中的 schematic 导出为可在 Analog Canvas 里继续编辑的工程文件。转换在本机完成，不需要大模型或 Virtuoso Bridge。它生成的是可编辑的图，不保证与原电路的仿真结果等价。
+中文 | [English](README.en.md)
+
+把 Cadence Virtuoso 中的 schematic 导出为可在 Analog Canvas 里继续编辑的工程文件。转换在本机完成，不需要大模型或 Virtuoso Bridge。它生成的是可编辑的图，不保证与原电路的仿真结果等价。当前只转换所选的单层 schematic，不自动展开子模块；未识别器件默认用保留外部引脚的方框表示。
 
 下面的命令分两类：`bash` 代码块在 **Linux 终端**运行；`lisp` 代码块在 Virtuoso 的命令窗口 **CIW** 输入。日常使用只需按第 1 至第 4 步操作。
 
@@ -93,4 +95,7 @@ load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_init.il"))
 
 个人配置默认保存在 `personal/config.json` 和 `personal/mappings.json`。它们不会自动上传到 Git，也不要把含公司 PDK 或设计信息的 `work/` 输出提交到公开仓库。
 
-需要批量处理时，可使用 `packages/cli/` 的命令行入口；日常从 Virtuoso 菜单导出不需要操作 CLI。
+## 按需阅读
+
+- [UI 使用说明](UI使用说明.md)：每个窗口设置的作用，以及哪些设置会保存。
+- [CLI 使用说明](CLI使用说明.md)：批量转换、编辑映射文件和查看诊断；日常从菜单导出不需要 CLI。
