@@ -27,21 +27,32 @@ git submodule update --init --recursive
 
 ## 2. Install dependencies and build
 
-The Linux machine needs Node.js **24+**, pnpm **11.16+**, Python **3.9+**, and an installed Virtuoso environment. Check the versions:
+Building from source and running the local Analog Canvas currently require Node.js **24+**, the upstream-pinned pnpm **11.16.0**, Python **3.9+**, and an installed Virtuoso environment. You do not need to upgrade the system-wide Node installation: Node 24 can be installed alongside it in your home directory. From the project directory, check:
 
 ```bash
 node --version
-pnpm --version
+(cd analog-canvas && pnpm --version)
 python3 --version
 ```
 
-Ask your administrator to provide any missing software. Then, from the `virtuoso-canvas` directory:
+If `node --version` shows 22 but Node 24 is already installed with nvm in your home directory, switch **this terminal** to it:
+
+```bash
+source "$HOME/.nvm/nvm.sh"
+nvm use 24
+node --version
+(cd analog-canvas && pnpm --version)
+```
+
+`nvm use 24` does not change the system-wide Node. If Node 24 is not installed, obtain it first. If pnpm is still missing, run `corepack enable pnpm` under Node 24 and check again. That step and dependency installation may need the npm registry or a company mirror; for an offline machine, ask your administrator for a mirror or prepared environment. **Retrying `npm run setup` with Node 22 will not work**: the build and local-editor launch scripts check the Node version.
+
+Once the versions are correct, from the `virtuoso-canvas` directory run:
 
 ```bash
 npm run setup
 ```
 
-This command installs Analog Canvas dependencies, builds the converter, and runs the automated tests. Run it after a fresh clone or source update. Stop and inspect the terminal error if it fails. Dependency installation normally needs access to the npm registry or an internal mirror.
+This command installs Analog Canvas dependencies, builds the converter, and runs the automated tests. Run it after a fresh clone or source update. Stop and inspect the terminal error if it fails. The menu script can also select an nvm-installed Node 24 automatically. For another installation location, set `VC_NODE_PATH` to the absolute path of the Node 24 executable before starting Virtuoso.
 
 ## 3. Load the Virtuoso menu
 

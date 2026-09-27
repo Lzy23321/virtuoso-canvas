@@ -27,21 +27,32 @@ git submodule update --init --recursive
 
 ## 2. 安装依赖并构建
 
-这台 Linux 机器需要 Node.js **24 或更高版本**、pnpm **11.16 或更高版本**、Python **3.9 或更高版本**，以及已安装的 Virtuoso。先在终端检查：
+当前源码构建和本机 Analog Canvas 运行需要 Node.js **24 或更高版本**、上游锁定的 pnpm **11.16.0**、Python **3.9 或更高版本**，以及已安装的 Virtuoso。这不要求升级公司的系统 Node：可以在个人目录并装 Node 24。先在项目目录检查：
 
 ```bash
 node --version
-pnpm --version
+(cd analog-canvas && pnpm --version)
 python3 --version
 ```
 
-缺少软件时，请先通过服务器管理员或本机的软件管理方式安装。然后在 `virtuoso-canvas` 项目目录运行：
+如果 `node --version` 显示 22，但已经通过 nvm 在个人目录安装了 Node 24，在**当前终端**执行：
+
+```bash
+source "$HOME/.nvm/nvm.sh"
+nvm use 24
+node --version
+(cd analog-canvas && pnpm --version)
+```
+
+`nvm use 24` 只切换当前终端，不修改系统 Node。如果它提示没有安装 24，需要先取得 Node 24；若 pnpm 仍找不到，可在该 Node 24 环境执行 `corepack enable pnpm`，再检查版本。这一步及首次安装依赖可能需要访问 npm 仓库或公司镜像；断网时请让管理员提供可用镜像或预装环境。**直接用 Node 22 重试 `npm run setup` 不会成功**，因为构建和本机编辑器启动脚本会检查 Node 版本。
+
+确认版本后，在 `virtuoso-canvas` 项目目录运行：
 
 ```bash
 npm run setup
 ```
 
-这一个命令会安装 Analog Canvas 所需的依赖、构建项目并运行自动测试。首次安装或更新项目后运行即可；如果报错，先看终端末尾的错误信息，不要继续做下一步。安装依赖通常需要访问 npm 仓库或公司内部镜像。
+这一个命令会安装 Analog Canvas 所需的依赖、构建项目并运行自动测试。首次安装或更新项目后运行即可；如果报错，先看终端末尾的错误信息，不要继续做下一步。通过 nvm 安装的 Node 24 也可供菜单脚本自动选择；从其他位置安装时，可在启动 Virtuoso 前设置 `VC_NODE_PATH` 为 Node 24 可执行文件的绝对路径。
 
 ## 3. 在 Virtuoso 中加载菜单
 
