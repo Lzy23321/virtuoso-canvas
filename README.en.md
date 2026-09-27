@@ -99,3 +99,9 @@ Personal settings are stored in `personal/config.json` and `personal/mappings.js
 
 - [UI guide](UI-Guide.en.md): window controls and which settings persist.
 - [CLI guide](CLI-Guide.en.md): batch conversion, mapping files, and diagnostics. Normal menu-based export does not require the CLI.
+
+## License
+
+The converter code is licensed under [AGPL-3.0-only](LICENSE.md). Analog Canvas is a separate upstream project included as a Git submodule; complete source bundles include its source and original license. Keep its copyright, license, and third-party notices when redistributing those bundles. See [NOTICE.md](NOTICE.md) for attribution and scope. Cadence Virtuoso and PDKs are not included.
+
+For research, teaching, or another publication using Analog Canvas, cite the upstream authors and project as described in [NOTICE.md](NOTICE.md). Ordinary installation and use do not require a publication citation.

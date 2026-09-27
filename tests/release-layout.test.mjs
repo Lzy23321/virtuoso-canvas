@@ -30,6 +30,10 @@ test('release layouts share one source and exclude personal data',async()=>{
         await stat(path.join(out,'analog-canvas/package.json'));
         await stat(path.join(out,'skill/virtuoso_canvas_ui.il'));
         await stat(path.join(out,'README.md'));
+        assert.equal(await readFile(path.join(out,'LICENSE.md'),'utf8'),
+          await readFile(path.join(root,'analog-canvas/LICENSE.md'),'utf8'));
+        await stat(path.join(out,'NOTICE.md'));
+        await stat(path.join(out,'analog-canvas/LICENSE.md'));
         for(const guide of ['README.en.md','UI使用说明.md','UI-Guide.en.md','CLI使用说明.md','CLI-Guide.en.md'])
           await stat(path.join(out,guide));
         await assert.rejects(stat(path.join(out,'docs')));

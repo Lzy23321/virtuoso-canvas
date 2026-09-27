@@ -99,3 +99,9 @@ load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_init.il"))
 
 - [UI 使用说明](UI使用说明.md)：每个窗口设置的作用，以及哪些设置会保存。
 - [CLI 使用说明](CLI使用说明.md)：批量转换、编辑映射文件和查看诊断；日常从菜单导出不需要 CLI。
+
+## 开源协议
+
+本项目转换代码采用 [AGPL-3.0-only](LICENSE.md)。Analog Canvas 是独立的上游项目，通过 Git 子模块提供；完整源码包也会包含其源码及原有协议。重新分发完整源码包时，请保留上游的版权、协议和第三方声明。来源及范围见 [NOTICE.md](NOTICE.md)。Cadence Virtuoso 和 PDK 不包含在本项目中。
+
+使用 Analog Canvas 开展研究、教学或发表作品时，请按上游要求引用其作者和项目；引用格式见 [NOTICE.md](NOTICE.md)。普通安装和使用不需要在文稿中添加引用。

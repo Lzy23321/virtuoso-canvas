@@ -15,6 +15,7 @@ if(execFileSync('git',['status','--porcelain'],{cwd:checkout,encoding:'utf8'}).t
   throw Error('Analog Canvas checkout is dirty; review it before packaging');
 await mkdir(out,{recursive:true});
 for(const name of ['package.json','tsconfig.json','upstream-lock.json','README.md','README.en.md',
+  'LICENSE.md','NOTICE.md',
   'UI使用说明.md','UI-Guide.en.md','CLI使用说明.md','CLI-Guide.en.md',
   'packages','skill','rules','schemas','scripts','tests'])
   await cp(path.join(root,name),path.join(out,name),{recursive:true,filter:from=>
