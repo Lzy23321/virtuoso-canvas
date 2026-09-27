@@ -83,7 +83,7 @@ node dist/packages/cli/src/main.js convert /tmp/design.snapshot.json --out work/
 ```
 
 成功后在 Analog Canvas 中打开 `work/design-result/project.icproj.json`。
-需要自定义文件名时，可在 `convert` 中添加 `--project-file design.icproj.json`；默认仍会和 `report.json` 一起放入 `--out` 指定的新目录。需要多个工程共用一个保存目录时，加 `--flat`：工程保存为 `design.icproj.json`，报告保存为 `design.report.json`。同名文件默认不会覆盖；CLI 可显式加 `--replace`。Virtuoso schematic 菜单中的 **Schematic to Canvas → Export schematic...** 打开导出窗口，**Project filename** 直接填当前 cell 名，导出时自动补 `.icproj.json`；同名文件会先弹出 Yes/No 覆盖确认。窗口中的 **Open Analog Canvas** 会启动或复用 `upstream-lock.json` 指定端口上的本机 Canvas 服务（当前为 `127.0.0.1:4175`）并打开浏览器，不会自动导入工程文件。
+需要自定义文件名时，可在 `convert` 中添加 `--project-file design.icproj.json`；默认仍会和 `report.json` 一起放入 `--out` 指定的新目录。需要多个工程共用一个保存目录时，加 `--flat`：工程保存为 `design.icproj.json`，报告保存为 `design.report.json`。同名文件默认不会覆盖；CLI 可显式加 `--replace`。Virtuoso schematic 菜单中的 **Schematic to Canvas → Export schematic...** 打开导出窗口，**Project filename** 直接填当前 cell 名，导出时自动补 `.icproj.json`；同名文件会先弹出 Yes/No 覆盖确认。窗口中的 **Open Analog Canvas** 会启动或复用 本机 `127.0.0.1:4173` 的 Canvas 服务并打开浏览器，不会自动导入工程文件。
 
 导出窗口中的 **Power nets** 和 **Ground nets** 用空格分隔网络名，例如 `VDD AVDD` 和 `GND VSS`。修改后直接导出会使用窗口当前值；点击 **Save network settings** 才会写入 `personal/config.json`（或 `VC_CONFIG_PATH` 指定的文件），下次打开窗口自动读取。保存仅更新这两组网络名，不清除其他个人配置；同一网络名不能同时属于 Power 和 Ground。
 
