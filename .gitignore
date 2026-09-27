@@ -1,5 +1,9 @@
 analog-canvas-legacy-192438d/
 prototype/
+README.en.md
+docs/Git跟踪范围.md
+docs/SKILL前端协议.md
+docs/发布与上游集成.md
 dist/
 node_modules/
 work/
