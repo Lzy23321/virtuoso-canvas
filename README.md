@@ -24,8 +24,6 @@ cd virtuoso-canvas  # 进入项目根目录
 
 其中 `/path/where/you/keep/projects` 换成你自己的目录，例如 `$HOME/projects`。锁定版本的 Analog Canvas 是为了防止Analog Canvas更新后，转换程序出BUG，所以需要使用兼容版本的Analog Canvas
 
-
-
 也可以在 GitHub 页面选择 **Code → Download ZIP** 下载源码，但 ZIP 不会自动包含 `analog-canvas` 上游目录。使用 ZIP 时仍需单独取得与 `upstream-lock.json` 对应的上游代码，也就是对应版本的Analog Canvas。
 
 ## 二、首次安装依赖并构建
@@ -44,14 +42,32 @@ npm run setup  # 安装依赖、构建项目并运行自动测试
 
 `npm run setup` 只在首次安装、重新 clone 或更新项目代码后执行。它内部完成的步骤是：安装锁定版本的 Analog Canvas 依赖、生成 Virtuoso 窗口和转换器需要的 `dist/`，以及检查安装是否正常。
 
-如果服务器不能访问互联网，先在一台可以联网的同版本 Linux 机器上完成 `npm run setup`，然后把整个项目目录（包括 `analog-canvas/node_modules/` ）复制或打包到服务器。服务器上不需要重新下载依赖，可以运行：
+如果 Linux 服务器不能访问互联网，可以先在 Windows 电脑上下载完整源码，再复制到 Linux。Windows 只负责下载文件，不要在 Windows 上运行构建命令：
+
+1. 在 Windows 安装 Git，打开 PowerShell，执行：
+
+   ```powershell
+   cd C:\Users\你的用户名\Downloads
+   git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
+   ```
+
+   `--recurse-submodules` 会同时下载仓库锁定的 `analog-canvas` 源码。
+2. 将整个 `virtuoso-canvas` 文件夹复制到 Linux 服务器，例如使用 scp、SFTP 或服务器管理平台。不要只复制 `packages/`、`skill/` 或 `dist/`。
+3. 在 Linux 服务器进入项目目录。如果服务器有内部 npm/pnpm 镜像，执行正常安装：
+
+   ```bash
+   cd /path/to/virtuoso-canvas
+   npm run setup
+   ```
+
+   如果依赖和构建产物已经从同版本 Linux 环境一起复制过来，才使用离线检查：
 
 ```bash
 cd /path/to/virtuoso-canvas  # 进入项目根目录
 node scripts/setup.mjs --offline --skip-tests  # 不访问网络，使用已有依赖完成检查和构建
 ```
 
-`--offline` 要求 pnpm 的依赖已经在本机缓存中；如果把已经安装好的 `node_modules/` 和 `dist/` 一起复制过来，通常可以直接使用。Node.js、Python 和 Virtuoso 本身仍需由服务器管理员预先安装，项目脚本不能离线替你安装系统软件。
+`--offline` 要求 pnpm 依赖已经在 Linux 服务器的缓存中，或者项目中已经携带同平台生成的 `analog-canvas/node_modules/` 和 `dist/`。Windows 上生成的 `node_modules/` 不能直接当作 Linux 依赖使用。Node.js、Python 和 Virtuoso 本身仍需由服务器管理员预先安装，项目脚本不能离线替你安装系统软件。
 
 测试通过后，才进行下一节的 Virtuoso 配置。
 
