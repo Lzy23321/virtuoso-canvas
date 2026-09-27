@@ -9,9 +9,9 @@
 登录服务器后，先确认软件版本：
 
 ```bash
-node --version       # 需要 24 或更高
-pnpm --version       # 需要 11.16 或更高
-python3 --version    # 需要 3.9 或更高
+node --version       # 查看 Node.js 版本；项目要求 24 或更高
+pnpm --version       # 查看 pnpm 版本；项目要求 11.16 或更高
+python3 --version    # 查看 Python 版本；项目要求 3.9 或更高
 ```
 
 如果服务器还没有 Node.js、pnpm 或 Python，请先按服务器管理员的方式安装。项目不会替你安装系统软件。
@@ -19,16 +19,16 @@ python3 --version    # 需要 3.9 或更高
 使用 Git 下载项目（推荐）：
 
 ```bash
-cd /path/where/you/keep/projects
-git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
-cd virtuoso-canvas
+cd /path/where/you/keep/projects  # 进入你要存放项目的目录
+git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git  # 下载项目和锁定版本的 Analog Canvas
+cd virtuoso-canvas  # 进入项目根目录
 ```
 
 其中 `/path/where/you/keep/projects` 换成你自己的目录，例如 `$HOME/projects`。如果你已经用普通方式 clone 过项目，需要补下载上游 submodule：
 
 ```bash
-cd /path/to/virtuoso-canvas
-git submodule update --init --recursive
+cd /path/to/virtuoso-canvas  # 进入已经下载的项目
+git submodule update --init --recursive  # 补齐外层仓库记录的固定上游版本
 ```
 
 也可以在 GitHub 页面选择 **Code → Download ZIP** 下载源码，但 ZIP 不会自动包含 `analog-canvas` 上游目录。使用 ZIP 时仍需单独取得与 `upstream-lock.json` 对应的上游代码，因此推荐使用上面的 `git clone --recurse-submodules`。
@@ -38,8 +38,8 @@ git submodule update --init --recursive
 进入刚下载的项目目录，执行：
 
 ```bash
-cd /path/to/virtuoso-canvas
-npm run setup
+cd /path/to/virtuoso-canvas  # 进入项目根目录
+npm run setup  # 安装依赖、构建项目并运行自动测试
 ```
 
 这些命令只在首次安装、重新 clone 或更新项目代码后执行。它们的作用是：
@@ -51,20 +51,31 @@ npm run setup
 如果服务器不能访问互联网，先在一台可以联网的同版本 Linux 机器上完成 `npm run setup`，然后把整个项目目录（包括 `analog-canvas/node_modules/` 和 `dist/`）复制或打包到服务器。服务器上不需要重新下载依赖，可以运行：
 
 ```bash
-cd /path/to/virtuoso-canvas
-node scripts/setup.mjs --offline --skip-tests
+cd /path/to/virtuoso-canvas  # 进入项目根目录
+node scripts/setup.mjs --offline --skip-tests  # 不访问网络，使用已有依赖完成检查和构建
 ```
 
 `--offline` 要求 pnpm 的依赖已经在本机缓存中；如果把已经安装好的 `node_modules/` 和 `dist/` 一起复制过来，通常可以直接使用。Node.js、Python 和 Virtuoso 本身仍需由服务器管理员预先安装，项目脚本不能离线替你安装系统软件。
 
 测试通过后，才进行下一节的 Virtuoso 配置。
 
+安装阶段命令的区别如下：
+
+| 命令 | 作用 | 什么时候执行 |
+| --- | --- | --- |
+| `git clone --recurse-submodules ...` | 下载本项目，并同时取出仓库锁定的 Analog Canvas 版本 | 第一次安装 |
+| `git submodule update --init --recursive` | 补齐缺失的 submodule；不会自动切换到最新版 | 普通 clone 或 submodule 缺失时 |
+| `npm run setup` | 安装上游依赖、构建 `dist/`、运行测试 | 第一次安装或更新源码后 |
+| `node scripts/setup.mjs --offline --skip-tests` | 使用本机已有依赖进行离线构建，不联网、不运行测试 | 离线服务器部署时 |
+| `npm run build` | 只重新构建，不重新安装依赖 | 修改代码后快速重建 |
+| `npm test` | 运行自动化测试，不修改用户映射和设计 | 构建后检查环境时 |
+
 ## 三、告诉 Virtuoso 项目在哪里
 
 如果项目路径是默认的 `/home/userone/projects/virtuoso-canvas`，可以直接使用。其他路径必须在**启动 Virtuoso 之前**设置 `VC_ROOT`：
 
 ```bash
-export VC_ROOT=/path/to/virtuoso-canvas
+export VC_ROOT=/path/to/virtuoso-canvas  # 告诉 UI 项目安装在哪里
 ```
 
 然后从这个终端启动 Virtuoso，或者把这行加入你启动 Virtuoso 使用的环境脚本。UI 会从 `VC_ROOT` 查找已经构建好的 `dist/`、SKILL 文件和上游目录。
@@ -72,8 +83,8 @@ export VC_ROOT=/path/to/virtuoso-canvas
 如果服务器上有多个 Node.js 或 Python，再设置对应的可执行文件：
 
 ```bash
-export VC_NODE_PATH=/path/to/node
-export VC_PYTHON=/path/to/python3
+export VC_NODE_PATH=/path/to/node      # 可选：指定 Node.js 可执行文件
+export VC_PYTHON=/path/to/python3      # 可选：指定 Python 可执行文件
 ```
 
 个人映射和显示配置默认保存在：
@@ -90,14 +101,14 @@ $VC_ROOT/personal/config.json
 在 Virtuoso CIW 中执行下面两行。路径要改成你的实际项目路径：
 
 ```lisp
-load("/path/to/virtuoso-canvas/skill/virtuoso_canvas_ui.il")
-VCUIShow()
+load("/path/to/virtuoso-canvas/skill/virtuoso_canvas_ui.il")  ; 加载 UI 和菜单代码
+VCUIShow()  ; 显示 Virtuoso Canvas 窗口
 ```
 
 如果希望每次启动 Virtuoso 自动加载 UI，把下面一行加入你自己的 `.cdsinit`（不要修改项目目录中的文件）：
 
 ```lisp
-load("/path/to/virtuoso-canvas/skill/virtuoso_canvas_init.il")
+load("/path/to/virtuoso-canvas/skill/virtuoso_canvas_init.il")  ; 启动时自动加载 UI
 ```
 
 启动 Virtuoso 前必须已经设置 `VC_ROOT`。这个初始化脚本只加载窗口和菜单，不会自动扫描或导出设计。
@@ -149,14 +160,26 @@ CLI 适合无 Virtuoso 窗口的批处理、回归测试和问题诊断。它使
 从 CIW 导出快照后，可以在终端执行：
 
 ```bash
-node dist/packages/cli/src/main.js prepare /tmp/design.snapshot.json --out work/design-settings
+node dist/packages/cli/src/main.js prepare /tmp/design.snapshot.json --out work/design-settings  # 扫描器件并生成可编辑的映射设置
 # 编辑 work/design-settings/mappings.json 后：
 node dist/packages/cli/src/main.js save-mappings /tmp/design.snapshot.json \
-  --settings work/design-settings/mappings.json
-node dist/packages/cli/src/main.js convert /tmp/design.snapshot.json --out work/design-result
+  --settings work/design-settings/mappings.json  # 把映射保存到 personal/mappings.json
+node dist/packages/cli/src/main.js convert /tmp/design.snapshot.json --out work/design-result  # 生成工程和报告
 ```
 
 普通转换输出 `project.icproj.json` 和 `report.json`；加 `--preview` 保存 SVG 预览，`--debug` 保存完整诊断。映射指南、输出文件和失败诊断分别见 [映射表指南](docs/mapping-packages.zh-CN.md) 和 [代码与文件流程](docs/代码与文件流程.md)。
+
+CLI 命令说明：
+
+| 命令 | 作用 | 主要输入/输出 |
+| --- | --- | --- |
+| `prepare` | 读取 Virtuoso 导出的快照，列出器件并生成映射编辑文件 | 输入 `snapshot.json`；输出 `mappings.json`、预览和符号目录 |
+| `save-mappings` | 校验并保存用户确认的器件映射 | 输入编辑后的 `mappings.json`；更新个人映射表 |
+| `convert` | 按映射把快照转换成 Analog Canvas 工程 | 输入快照和映射；输出 `.icproj.json` 与报告 |
+| `config` | 查看补齐默认值后的个人配置 | 输出配置内容，不修改设计 |
+| `catalog` | 查看当前转换器支持的目标符号 | 输出符号目录 |
+
+普通用户不需要直接运行这些 CLI 命令；Virtuoso 窗口会自动调用同一套功能。CLI 主要用于没有 Virtuoso 图形界面时的批处理和排查问题。
 
 ## 特殊器件怎么处理
 
