@@ -1,0 +1,3 @@
+[submodule "analog-canvas"]
+	path = analog-canvas
+	url = https://github.com/cascode-ai/analog-canvas.git

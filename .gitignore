@@ -1,0 +1,13 @@
+analog-canvas-legacy-192438d/
+prototype/
+dist/
+node_modules/
+work/
+personal/
+__pycache__/
+*.pyc
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example

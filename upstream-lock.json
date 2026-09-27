@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/cascode-ai/analog-canvas",
+  "checkoutPath": "analog-canvas",
+  "commit": "6fbacc229bd985b556693048aba628c3e29e30fa",
+  "modelSchemaVersion": 58,
+  "projectFileVersion": 64,
+  "port": 4175,
+  "note": "Clean upstream checkout; schema 48 converter output is migrated to this revision before refinement."
+}

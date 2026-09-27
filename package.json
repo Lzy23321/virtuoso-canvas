@@ -1,0 +1,32 @@
+{
+  "name": "virtuoso-canvas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "virtuoso-canvas": "./dist/packages/cli/src/main.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/packages/virtuoso-import/index.d.ts",
+      "import": "./dist/packages/virtuoso-import/index.js"
+    },
+    "./core": {
+      "types": "./dist/packages/virtuoso-import/core/index.d.ts",
+      "import": "./dist/packages/virtuoso-import/core/index.js"
+    },
+    "./canvas-adapter": {
+      "types": "./dist/packages/virtuoso-import/adapter/index.d.ts",
+      "import": "./dist/packages/virtuoso-import/adapter/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "cli": "node dist/packages/cli/src/main.js",
+    "schemas": "node scripts/schemas.mjs"
+  }
+}
