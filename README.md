@@ -28,7 +28,7 @@ git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
 cd virtuoso-canvas
 ```
 
-后续命令都在这个 `virtuoso-canvas` 目录执行；不要求项目位于 `$HOME`。
+安装和构建命令在这个 `virtuoso-canvas` 目录执行；**日常启动 Virtuoso 时仍使用你原来的工作目录**。工具仓库不需要放在 Virtuoso 的启动目录，建议与电路设计目录分开，避免混入项目文件。
 
 如果已经克隆过，但 `analog-canvas/` 是空的，在项目目录运行：
 
@@ -90,15 +90,14 @@ load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_ui.il"))
 
 第二行应返回项目目录字符串，而不是 `nil`。如果 Node 24 不在 nvm 默认位置，还要在加载前于 CIW 输入 `setShellEnvVar("VC_NODE_PATH=/absolute/path/to/node")`。这些设置只作用于当前 Virtuoso 会话。如果此前已从**另一个项目路径**加载过本菜单，请重启 Virtuoso 后按下面的启动方式操作，避免沿用旧路径。
 
-**Virtuoso 尚未启动：**在 Linux 终端进入实际安装的 `virtuoso-canvas` 目录，然后执行：
+**Virtuoso 尚未启动：**在平常用于启动 Virtuoso 的终端执行下面的命令，把路径换成工具仓库的实际位置；**不需要切换当前目录**：
 
 ```bash
-cd /absolute/path/to/virtuoso-canvas
-export VC_ROOT="$(pwd -P)"
-echo "$VC_ROOT"
+export VC_ROOT="/absolute/path/to/virtuoso-canvas"
+test -f "$VC_ROOT/skill/virtuoso_canvas_ui.il" && echo "VC_ROOT OK: $VC_ROOT"
 ```
 
-把第一行换成你实际的项目目录，不要原样输入占位符。`echo` 应显示该目录的绝对路径。**从这个终端启动 Virtuoso**（若 `virtuoso` 命令在 `PATH` 中，可输入 `virtuoso &`；否则使用公司提供的启动命令），然后在 CIW 输入：
+不要原样输入占位符；第二行应显示 `VC_ROOT OK`。保持你平常启动 Virtuoso 的目录和方式，**从这个已经设置变量的终端启动**（若 `virtuoso` 命令在 `PATH` 中，可输入 `virtuoso &`；否则使用公司提供的启动命令），然后在 CIW 输入：
 
 ```lisp
 load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_ui.il"))

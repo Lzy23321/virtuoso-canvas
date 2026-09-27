@@ -28,7 +28,7 @@ git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
 cd virtuoso-canvas
 ```
 
-Run the later commands from that `virtuoso-canvas` directory. The project does not have to be under `$HOME`.
+Run installation and build commands from that `virtuoso-canvas` directory. **Keep using your usual Virtuoso working directory when starting Virtuoso.** The tool repository need not be installed there; keeping it separate from circuit design files is recommended.
 
 If you already cloned the repository but `analog-canvas/` is empty, run this in the project directory:
 
@@ -90,15 +90,14 @@ load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_ui.il"))
 
 The second line must return the project path, not `nil`. If Node 24 is outside the default nvm location, also enter `setShellEnvVar("VC_NODE_PATH=/absolute/path/to/node")` in CIW before loading the menu. These settings affect only the current Virtuoso session. If you previously loaded the menu from **another project location**, restart Virtuoso and use the startup instructions below to avoid retaining the old path.
 
-**Virtuoso is not open:** enter your actual `virtuoso-canvas` directory in a Linux terminal, then run:
+**Virtuoso is not open:** in the terminal you normally use to start Virtuoso, run these commands with the actual tool repository path. **Do not change your current directory:**
 
 ```bash
-cd /absolute/path/to/virtuoso-canvas
-export VC_ROOT="$(pwd -P)"
-echo "$VC_ROOT"
+export VC_ROOT="/absolute/path/to/virtuoso-canvas"
+test -f "$VC_ROOT/skill/virtuoso_canvas_ui.il" && echo "VC_ROOT OK: $VC_ROOT"
 ```
 
-Replace the first line with your real project directory; do not use the placeholder literally. `echo` should print its absolute path. **Start Virtuoso from this terminal** (use `virtuoso &` if that command is in `PATH`, or your company's launch command), then enter in CIW:
+Do not use the placeholder literally; the second line should print `VC_ROOT OK`. Stay in your normal Virtuoso working directory and **start Virtuoso from this terminal** (use `virtuoso &` if that command is in `PATH`, or your company's launch command), then enter in CIW:
 
 ```lisp
 load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_ui.il"))
