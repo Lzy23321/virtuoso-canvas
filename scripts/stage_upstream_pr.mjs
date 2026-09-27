@@ -18,6 +18,7 @@ const files=[];
 await cp(source,target,{recursive:true,filter:from=>
   !['dist','node_modules','__pycache__'].includes(path.basename(from))&&
   !from.endsWith('.pyc')&&!from.endsWith('.tsbuildinfo')});
+await cp(path.join(root,'LICENSE.md'),path.join(target,'LICENSE.md'));
 async function rewrite(directory) {
   const {readdir}=await import('node:fs/promises');
   for(const entry of await readdir(directory,{withFileTypes:true})) {

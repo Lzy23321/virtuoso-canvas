@@ -21,6 +21,8 @@ test('release layouts share one source and exclude personal data',async()=>{
       const files=await readdir(path.join(out,'packages'));
       assert.ok(!files.includes('core')&&!files.includes('canvas-adapter'));
       if(name==='upstream') {
+        assert.equal(await readFile(path.join(out,'packages/virtuoso-import/LICENSE.md'),'utf8'),
+          await readFile(path.join(root,'LICENSE.md'),'utf8'));
         const adapter=await readFile(path.join(out,'packages/virtuoso-import/adapter/index.ts'),'utf8');
         const engine=await readFile(path.join(out,'packages/virtuoso-import/engine/refine_canvas.mjs'),'utf8');
         assert.match(adapter,/from ['"]@icm\/model['"]/);
@@ -30,10 +32,10 @@ test('release layouts share one source and exclude personal data',async()=>{
         await stat(path.join(out,'analog-canvas/package.json'));
         await stat(path.join(out,'skill/virtuoso_canvas_ui.il'));
         await stat(path.join(out,'README.md'));
-        assert.equal(await readFile(path.join(out,'LICENSE.md'),'utf8'),
-          await readFile(path.join(root,'analog-canvas/LICENSE.md'),'utf8'));
+        assert.match(await readFile(path.join(out,'LICENSE.md'),'utf8'),/^MIT License/);
         await stat(path.join(out,'NOTICE.md'));
-        await stat(path.join(out,'analog-canvas/LICENSE.md'));
+        assert.equal(await readFile(path.join(out,'analog-canvas/LICENSE.md'),'utf8'),
+          await readFile(path.join(root,'analog-canvas/LICENSE.md'),'utf8'));
         for(const guide of ['README.en.md','UI使用说明.md','UI-Guide.en.md','CLI使用说明.md','CLI-Guide.en.md'])
           await stat(path.join(out,guide));
         await assert.rejects(stat(path.join(out,'docs')));

@@ -102,6 +102,6 @@ Personal settings are stored in `personal/config.json` and `personal/mappings.js
 
 ## License
 
-The converter code is licensed under [AGPL-3.0-only](LICENSE.md). Analog Canvas is a separate upstream project included as a Git submodule; complete source bundles include its source and original license. Keep its copyright, license, and third-party notices when redistributing those bundles. See [NOTICE.md](NOTICE.md) for attribution and scope. Cadence Virtuoso and PDKs are not included.
+The original converter code is licensed under the [MIT License](LICENSE.md). Analog Canvas is a separate upstream project under its own [AGPL-3.0-only license](analog-canvas/LICENSE.md), included as a Git submodule; complete source bundles include its source and original license. MIT licensing of the converter does not change the upstream license: distributing or operating the combined software remains subject to applicable AGPL terms. Keep the upstream copyright, license, and third-party notices when redistributing those bundles. See [NOTICE.md](NOTICE.md) for attribution and scope. Cadence Virtuoso and PDKs are not included.
 
 For research, teaching, or another publication using Analog Canvas, cite the upstream authors and project as described in [NOTICE.md](NOTICE.md). Ordinary installation and use do not require a publication citation.

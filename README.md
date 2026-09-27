@@ -102,6 +102,6 @@ load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_init.il"))
 
 ## 开源协议
 
-本项目转换代码采用 [AGPL-3.0-only](LICENSE.md)。Analog Canvas 是独立的上游项目，通过 Git 子模块提供；完整源码包也会包含其源码及原有协议。重新分发完整源码包时，请保留上游的版权、协议和第三方声明。来源及范围见 [NOTICE.md](NOTICE.md)。Cadence Virtuoso 和 PDK 不包含在本项目中。
+本项目原创的转换代码采用 [MIT 协议](LICENSE.md)。Analog Canvas 是独立的上游项目，仍采用其自身的 [AGPL-3.0-only](analog-canvas/LICENSE.md) 协议，通过 Git 子模块提供；完整源码包也会包含其源码及原有协议。MIT 不会改变 Analog Canvas 的协议：分发或运行两者的组合时仍须遵守适用的 AGPL 条款。重新分发完整源码包时，请保留上游的版权、协议和第三方声明。范围及来源见 [NOTICE.md](NOTICE.md)。Cadence Virtuoso 和 PDK 不包含在本项目中。
 
 使用 Analog Canvas 开展研究、教学或发表作品时，请按上游要求引用其作者和项目；引用格式见 [NOTICE.md](NOTICE.md)。普通安装和使用不需要在文稿中添加引用。
