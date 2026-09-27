@@ -8,88 +8,64 @@
 
 发布目录和上游 PR 暂存方式见 [发布与上游集成](docs/发布与上游集成.md)。两个产物都从 `packages/virtuoso-import/` 这一份转换核心生成，不维护第二份算法。
 
-## 第一次使用：只做这四步
+## 第一次使用：Virtuoso 窗口
 
-### 1. 在 Virtuoso 的 CIW 导出
-
-```lisp
-load("/home/userone/projects/virtuoso-canvas/skill/export_schematic.il")
-VCExportCell("你的库名" "你的cell名" "schematic" "/tmp/design.snapshot.json")
-```
-
-只替换库名、cell 名和输出文件路径。库需要在 Virtuoso 注册，输出目录必须存在，输出文件必须尚不存在。不需要打开原理图窗口，也不会自动 Check and Save。
-
-脚本读取当前数据库中的连接；未检查的编辑可能尚未更新网络关系。若该 cellView 已在会话中打开，可能读取内存中的未保存修改，而不是磁盘旧版本。看到 `("exported" ...)` 表示快照已生成，不代表已经生成 Analog Canvas 工程。
-
-### 2. 在 Linux 终端准备映射
-
-以下命令都在 Linux 终端运行，不是在 CIW：
+项目的主要入口是 Virtuoso 原生窗口。先完成一次构建，然后在 Virtuoso CIW 中加载界面：
 
 ```bash
 cd /home/userone/projects/virtuoso-canvas
+npm run build
+```
+
+```lisp
+load("/home/userone/projects/virtuoso-canvas/skill/virtuoso_canvas_ui.il")
+VCUIShow()
+```
+
+窗口中的典型流程：
+
+1. 在 schematic 窗口打开目标原理图，点击 **Scan devices** 扫描器件。
+2. 查看器件、源引脚和当前目标符号。选中器件后点击 **Edit mapping...**，选择 Analog Canvas 符号并逐个对应引脚和参数。
+3. 点击 **Use this run** 仅在本次导出中使用规则；点击 **Save personal** 将规则保存到 `personal/mappings.json`，以后遇到相同 library/cell 会自动复用。
+4. 在菜单 **Schematic to Canvas → Export schematic...** 中选择输出目录和工程文件名，设置 Power/Ground nets 以及总线、禁用实例等选项，然后点击 **Export project**。
+5. 在 Analog Canvas 中打开生成的 `.icproj.json`。**Open Analog Canvas** 会启动或复用本机 `127.0.0.1:4173` 的 Canvas 服务，但不会自动导入工程。
+
+映射编辑器中的 **Browse all symbols...** 可以查看完整符号目录；只有标记为 `supported` 的符号可以直接用于转换。未匹配器件默认生成可携带引脚的通用方框。窗口输出的成功、警告和失败原因会显示在 CIW 中。
+
+窗口使用 `VC_ROOT` 查找安装目录；未设置时默认使用 `/home/userone/projects/virtuoso-canvas`。需要其他个人配置或映射时，可在启动 Virtuoso 前设置 `VC_CONFIG_PATH` 和 `VC_MAPPING_PATH`。
+
+详细的窗口协议和结果回执见 [SKILL 前端协议](docs/SKILL前端协议.md)，配置字段见 [配置参考](docs/配置参考.md)。
+
+## 安装与构建
+
+`analog-canvas/` 是由 `upstream-lock.json` 固定版本的 Git submodule。首次克隆请使用：
+
+```bash
+git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
+cd virtuoso-canvas/analog-canvas
+pnpm install --frozen-lockfile
+cd ..
+npm run build
+npm test
+```
+
+需要 Node.js 24+、pnpm 11.16+ 和 Python 3.9+。不要提交 `personal/`、`work/`、`dist/`、`node_modules/`、日志、环境文件或真实设计快照。完整跟踪范围见 [Git 跟踪范围](docs/Git跟踪范围.md)。
+
+## CLI：批处理和调试入口
+
+CLI 适合无 Virtuoso 窗口的批处理、回归测试和问题诊断。它使用与 UI 相同的转换核心。
+
+从 CIW 导出快照后，可以在终端执行：
+
+```bash
 node dist/packages/cli/src/main.js prepare /tmp/design.snapshot.json --out work/design-settings
-```
-
-打开这两个文件：
-
-- `work/design-settings/preview.txt`：未匹配器件排在前面，显示源引脚和当前映射，不再输出 suggestions。
-- `work/design-settings/mappings.json`：你需要编辑的映射表。
-
-内置规则能匹配的已经填好，直接使用。没有规则的条目是 `null`，例如：
-
-```json
-{
-  "version": 1,
-  "devices": {
-    "myPDK/nch": null,
-    "basic/iopin": {
-      "symbol": "port",
-      "pins": { "iopin": "P" },
-      "parameters": {},
-      "omitPins": []
-    }
-  }
-}
-```
-
-将 `myPDK/nch` 对应的 `null` 替换为实际映射，例如：
-
-```json
-{
-  "symbol": "nmos",
-  "pins": { "D": "D", "G": "G", "S": "S", "B": "B" },
-  "parameters": { "w": "w", "l": "l" }
-}
-```
-
-左边是源器件的真实名称，右边是目标名称，区分大小写。不要填写源器件没有的参数。没有审核人、批准状态或候选 ID。
-
-可选符号、引脚和参数在 `work/design-settings/catalog.json`；详细说明见 [映射表指南](docs/mapping-packages.zh-CN.md)。推荐只是参考，不会因为名字像 NMOS 就自动决定极性。
-
-### 3. 保存到自己的映射表
-
-```bash
-node dist/packages/cli/src/main.js save-mappings /tmp/design.snapshot.json --settings work/design-settings/mappings.json
-```
-
-自动合并到本安装目录下的 `personal/mappings.json`。新增规则直接保存，不修改随程序发布的内置文件。修改已有个人规则时会显示新旧差异；检查后重新执行并加 `--replace`。
-
-没有匹配规则或保留 `null` 的器件会自动生成原生通用方框，保留外部引脚和连接，不再阻止转换。写错的显式映射仍会报错。
-
-### 4. 生成工程
-
-```bash
+# 编辑 work/design-settings/mappings.json 后：
+node dist/packages/cli/src/main.js save-mappings /tmp/design.snapshot.json \
+  --settings work/design-settings/mappings.json
 node dist/packages/cli/src/main.js convert /tmp/design.snapshot.json --out work/design-result
 ```
 
-成功后在 Analog Canvas 中打开 `work/design-result/project.icproj.json`。
-需要自定义文件名时，可在 `convert` 中添加 `--project-file design.icproj.json`；默认仍会和 `report.json` 一起放入 `--out` 指定的新目录。需要多个工程共用一个保存目录时，加 `--flat`：工程保存为 `design.icproj.json`，报告保存为 `design.report.json`。同名文件默认不会覆盖；CLI 可显式加 `--replace`。Virtuoso schematic 菜单中的 **Schematic to Canvas → Export schematic...** 打开导出窗口，**Project filename** 直接填当前 cell 名，导出时自动补 `.icproj.json`；同名文件会先弹出 Yes/No 覆盖确认。窗口中的 **Open Analog Canvas** 会启动或复用 本机 `127.0.0.1:4173` 的 Canvas 服务并打开浏览器，不会自动导入工程文件。
-
-导出窗口中的 **Power nets** 和 **Ground nets** 用空格分隔网络名，例如 `VDD AVDD` 和 `GND VSS`。修改后直接导出会使用窗口当前值；点击 **Save network settings** 才会写入 `personal/config.json`（或 `VC_CONFIG_PATH` 指定的文件），下次打开窗口自动读取。保存仅更新这两组网络名，不清除其他个人配置；同一网络名不能同时属于 Power 和 Ground。
-
-**以后遇到同一 lib/cell，直接导出快照并执行第 4 步。** 不需要再填写映射。
-
-`prepare` 以及未加 `--flat` 的 `convert` 要求 `--out` 是新目录；加 `--flat` 后可复用现有目录，但工程文件名不能重复。终端 JSON 中 `"ok": false` 表示失败；请先看错误，不要继续下一步。
+普通转换输出 `project.icproj.json` 和 `report.json`；加 `--preview` 保存 SVG 预览，`--debug` 保存完整诊断。映射指南、输出文件和失败诊断分别见 [映射表指南](docs/mapping-packages.zh-CN.md) 和 [代码与文件流程](docs/代码与文件流程.md)。
 
 ## 特殊器件怎么处理
 
