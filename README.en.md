@@ -19,6 +19,17 @@ cd virtuoso-canvas
 
 `--recurse-submodules` also downloads the compatible Analog Canvas revision. GitHub's **Code → Download ZIP** does not include the full submodule and is not a complete installation.
 
+For another location, first enter a directory you can write to, then run `git clone --recurse-submodules ...`. For example, to install under `/data/my-tools`:
+
+```bash
+mkdir -p /data/my-tools
+cd /data/my-tools
+git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
+cd virtuoso-canvas
+```
+
+Run the later commands from that `virtuoso-canvas` directory. The project does not have to be under `$HOME`.
+
 If you already cloned the repository but `analog-canvas/` is empty, run this in the project directory:
 
 ```bash
@@ -46,6 +57,17 @@ node --version
 
 `nvm use 24` does not change the system-wide Node. If Node 24 is not installed, obtain it first. If pnpm is still missing, run `corepack enable pnpm` under Node 24 and check again. That step and dependency installation may need the npm registry or a company mirror; for an offline machine, ask your administrator for a mirror or prepared environment. **Retrying `npm run setup` with Node 22 will not work**: the build and local-editor launch scripts check the Node version.
 
+If Node 24 is installed **elsewhere**, replace the first path below with the actual path to the Node executable, then run in the current terminal:
+
+```bash
+export VC_NODE_PATH="/absolute/path/to/node"
+export PATH="$(dirname "$VC_NODE_PATH"):$PATH"
+node --version
+(cd analog-canvas && pnpm --version)
+```
+
+`/absolute/path/to/node` is a placeholder, not a literal path to use. If pnpm is still missing, install or enable pnpm 11.16.0 for this Node environment; setting `VC_NODE_PATH` alone does not replace dependency installation.
+
 Once the versions are correct, from the `virtuoso-canvas` directory run:
 
 ```bash
@@ -56,21 +78,41 @@ This command installs Analog Canvas dependencies, builds the converter, and runs
 
 ## 3. Load the Virtuoso menu
 
-Set `VC_ROOT` **once**, before launching Virtuoso. If you start Virtuoso from a Bash terminal and installed the project in `$HOME/projects/virtuoso-canvas`, run this command once:
+`VC_ROOT` points to the project directory, **wherever you installed it**. Choose one of the following based on whether Virtuoso is already open.
 
-```bash
-printf '%s\n' 'export VC_ROOT="$HOME/projects/virtuoso-canvas"' >> "$HOME/.bashrc"
+**Virtuoso is already open:** enter these lines in its **CIW**, replacing the path on the first line with your actual project directory:
+
+```lisp
+setShellEnvVar("VC_ROOT=/absolute/path/to/virtuoso-canvas")
+getShellEnvVar("VC_ROOT")
+load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_ui.il"))
 ```
 
-For another location, replace the path with its absolute path **before** running the command. Running it repeatedly adds duplicate lines. Open a new terminal and check `echo "$VC_ROOT"`, then launch Virtuoso from that terminal.
+The second line must return the project path, not `nil`. If Node 24 is outside the default nvm location, also enter `setShellEnvVar("VC_NODE_PATH=/absolute/path/to/node")` in CIW before loading the menu. These settings affect only the current Virtuoso session. If you previously loaded the menu from **another project location**, restart Virtuoso and use the startup instructions below to avoid retaining the old path.
 
-If you launch Virtuoso from a desktop icon or a company script, `.bashrc` may not be read. Put `export VC_ROOT="the/absolute/project/path"` in the script that actually starts Virtuoso, before its launch command. Restart an already-open Virtuoso session after changing the environment.
+**Virtuoso is not open:** enter your actual `virtuoso-canvas` directory in a Linux terminal, then run:
 
-In Virtuoso **CIW**, enter:
+```bash
+cd /absolute/path/to/virtuoso-canvas
+export VC_ROOT="$(pwd -P)"
+echo "$VC_ROOT"
+```
+
+Replace the first line with your real project directory; do not use the placeholder literally. `echo` should print its absolute path. **Start Virtuoso from this terminal** (use `virtuoso &` if that command is in `PATH`, or your company's launch command), then enter in CIW:
 
 ```lisp
 load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_ui.il"))
 ```
+
+To make new Bash terminals load this setting, run **once**:
+
+```bash
+printf 'export VC_ROOT=%q\n' "$VC_ROOT" >> "$HOME/.bashrc"
+```
+
+Running this repeatedly adds duplicate lines to `.bashrc`. Launch Virtuoso from a terminal with `VC_ROOT` set. If Node 24 is not managed by nvm and you set `VC_NODE_PATH` above, run `printf 'export VC_NODE_PATH=%q\n' "$VC_NODE_PATH" >> "$HOME/.bashrc"` once to make it available in new terminals.
+
+If you launch Virtuoso from a desktop icon or a company script, `.bashrc` may not be read. Put `export VC_ROOT="the/absolute/project/path"` (and, if needed, `export VC_NODE_PATH="the/absolute/path/to/node"`) in the script that actually starts Virtuoso, before its launch command. Setting a variable in a terminal does not change an already-running Virtuoso process; use the CIW commands above for that session, or restart Virtuoso.
 
 The **Schematic to Canvas** menu should appear in an open schematic editor. You can also enter `VCUIShow()` in CIW. After manual loading works, optionally add this line to your own `.cdsinit` to load the menu at startup:
 

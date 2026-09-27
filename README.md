@@ -19,6 +19,17 @@ cd virtuoso-canvas
 
 `--recurse-submodules` 会同时下载项目固定版本的 Analog Canvas。只下载 GitHub 页面上的 **Code → Download ZIP** 不够：那个 ZIP 不包含 Analog Canvas 的完整源码。
 
+如果不想放在 `$HOME/projects`，先进入你有写入权限的目录，再执行 `git clone --recurse-submodules ...`。例如放在 `/data/my-tools`：
+
+```bash
+mkdir -p /data/my-tools
+cd /data/my-tools
+git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
+cd virtuoso-canvas
+```
+
+后续命令都在这个 `virtuoso-canvas` 目录执行；不要求项目位于 `$HOME`。
+
 如果已经克隆过，但 `analog-canvas/` 是空的，在项目目录运行：
 
 ```bash
@@ -46,6 +57,17 @@ node --version
 
 `nvm use 24` 只切换当前终端，不修改系统 Node。如果它提示没有安装 24，需要先取得 Node 24；若 pnpm 仍找不到，可在该 Node 24 环境执行 `corepack enable pnpm`，再检查版本。这一步及首次安装依赖可能需要访问 npm 仓库或公司镜像；断网时请让管理员提供可用镜像或预装环境。**直接用 Node 22 重试 `npm run setup` 不会成功**，因为构建和本机编辑器启动脚本会检查 Node 版本。
 
+如果 Node 24 安装在**其他位置**，把下一段第一行的路径换成实际的 Node 可执行文件路径，在当前终端执行：
+
+```bash
+export VC_NODE_PATH="/absolute/path/to/node"
+export PATH="$(dirname "$VC_NODE_PATH"):$PATH"
+node --version
+(cd analog-canvas && pnpm --version)
+```
+
+这里的 `/absolute/path/to/node` 是示例占位符，不要原样输入。如果 `pnpm` 仍找不到，需要在该 Node 环境安装或启用 pnpm 11.16.0；不能仅靠设置 `VC_NODE_PATH` 跳过依赖安装。
+
 确认版本后，在 `virtuoso-canvas` 项目目录运行：
 
 ```bash
@@ -56,21 +78,41 @@ npm run setup
 
 ## 3. 在 Virtuoso 中加载菜单
 
-`VC_ROOT` 只需**配置一次**，不必每次手动输入。如果你平时从 Bash 终端启动 Virtuoso，且按第 1 步安装在 `$HOME/projects/virtuoso-canvas`，在 Linux 终端执行一次：
+`VC_ROOT` 指向项目目录，**不要求在 `$HOME` 下**。根据 Virtuoso 是否已经打开，选择下面一种做法。
 
-```bash
-printf '%s\n' 'export VC_ROOT="$HOME/projects/virtuoso-canvas"' >> "$HOME/.bashrc"
+**Virtuoso 已经打开：**在它的 **CIW** 中逐行输入，把第一行的路径换成实际项目目录：
+
+```lisp
+setShellEnvVar("VC_ROOT=/absolute/path/to/virtuoso-canvas")
+getShellEnvVar("VC_ROOT")
+load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_ui.il"))
 ```
 
-如果项目不在这个位置，先把命令中的路径改成实际的**绝对路径**。只执行一次即可，重复执行会在 `.bashrc` 中添加重复的行。打开一个新终端，输入 `echo "$VC_ROOT"`，确认显示的是项目目录，然后从这个终端启动 Virtuoso。
+第二行应返回项目目录字符串，而不是 `nil`。如果 Node 24 不在 nvm 默认位置，还要在加载前于 CIW 输入 `setShellEnvVar("VC_NODE_PATH=/absolute/path/to/node")`。这些设置只作用于当前 Virtuoso 会话。如果此前已从**另一个项目路径**加载过本菜单，请重启 Virtuoso 后按下面的启动方式操作，避免沿用旧路径。
 
-如果你通过桌面图标或公司的脚本启动 Virtuoso，`.bashrc` 不一定会被读取。这时应把 `export VC_ROOT="项目的绝对路径"` 放在**实际启动 Virtuoso 的脚本中、启动命令之前**。已经打开的 Virtuoso 不会自动得到新设置；配置后需要重新启动。
+**Virtuoso 尚未启动：**在 Linux 终端进入实际安装的 `virtuoso-canvas` 目录，然后执行：
 
-在 Virtuoso 的 **CIW** 输入：
+```bash
+cd /absolute/path/to/virtuoso-canvas
+export VC_ROOT="$(pwd -P)"
+echo "$VC_ROOT"
+```
+
+把第一行换成你实际的项目目录，不要原样输入占位符。`echo` 应显示该目录的绝对路径。**从这个终端启动 Virtuoso**（若 `virtuoso` 命令在 `PATH` 中，可输入 `virtuoso &`；否则使用公司提供的启动命令），然后在 CIW 输入：
 
 ```lisp
 load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_ui.il"))
 ```
+
+要让以后新开的 Bash 终端自动获得这个设置，再执行**一次**：
+
+```bash
+printf 'export VC_ROOT=%q\n' "$VC_ROOT" >> "$HOME/.bashrc"
+```
+
+重复执行会在 `.bashrc` 中添加重复的行。之后从已设置 `VC_ROOT` 的终端启动 Virtuoso。如果你使用上面非 nvm 的 Node 24，且已经设置了 `VC_NODE_PATH`，可再执行一次 `printf 'export VC_NODE_PATH=%q\n' "$VC_NODE_PATH" >> "$HOME/.bashrc"`，让新终端也能找到它。
+
+如果你通过桌面图标或公司的脚本启动 Virtuoso，`.bashrc` 不一定会被读取。这时应把 `export VC_ROOT="项目的绝对路径"`（以及需要时的 `export VC_NODE_PATH="Node 可执行文件的绝对路径"`）放在**实际启动 Virtuoso 的脚本中、启动命令之前**。在终端设置变量不会改变已经打开的 Virtuoso；这种情况使用上面的 CIW 即时设置命令，或重启 Virtuoso。
 
 打开 schematic 后，顶部应出现 **Schematic to Canvas** 菜单。也可以在 CIW 输入 `VCUIShow()` 打开导出窗口。确认手动加载正常后，可将下面一行加入你自己的 `.cdsinit`，以后启动时自动加载：
 
