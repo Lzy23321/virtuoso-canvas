@@ -89,15 +89,8 @@ load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_init.il"))
 | `npm run setup` 安装依赖失败 | 检查 Node/pnpm 版本以及 Linux 到 npm 或内部镜像的连接 |
 | CIW 找不到脚本、窗口或 Node | 确认 `VC_ROOT` 在启动 Virtuoso **之前**设置，且第 2 步已成功 |
 | 扫描结果不是刚修改的电路 | 先保存 schematic，再重新扫描 |
-| 某个器件没有合适符号 | 查看 [映射表指南](docs/mapping-packages.zh-CN.md)；未映射器件可先用通用方框 |
+| 某个器件没有合适符号 | 在映射编辑窗查看可用符号；未映射器件可先用通用方框 |
 
 个人配置默认保存在 `personal/config.json` 和 `personal/mappings.json`。它们不会自动上传到 Git，也不要把含公司 PDK 或设计信息的 `work/` 输出提交到公开仓库。
-
-## 更多资料
-
-- [映射表指南](docs/mapping-packages.zh-CN.md)：需要自己对应器件、引脚或参数时阅读。
-- [配置参考](docs/配置参考.md)：电源/地名称、缩放、总线等设置。
-- [Analog Canvas 符号表](docs/analog-canvas-catalog.zh-CN.md)：支持哪些目标符号。
-- [代码与文件流程](docs/代码与文件流程.md)：开发者需要理解转换流程时阅读。
 
 需要批量处理时，可使用 `packages/cli/` 的命令行入口；日常从 Virtuoso 菜单导出不需要操作 CLI。
