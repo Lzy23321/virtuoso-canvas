@@ -1,10 +1,8 @@
 # Virtuoso → Analog Canvas
 
-这个项目把 Cadence Virtuoso 的 schematic 转换成可以在 Analog Canvas 中继续编辑的工程。转换在本机完成，原理图、PDK 和个人映射不会上传到网络。普通用户主要通过 Virtuoso 窗口使用，不需要学习命令行。
+此项目为 将Cadence Virtuoso 中的 schematic 转换为 可以在Analog Canvas中继续编辑的工程文件。转换不需要使用大模型，可以离线部署。前端 UI 界面内嵌在了Virtuoso Schematic菜单栏中。
 
-## 一、把项目安装到服务器
-
-项目必须安装在**运行 Virtuoso 的同一台服务器**上。不要只复制一个编译后的 `dist/` 目录。
+## 项目安装
 
 登录服务器后，先确认软件版本：
 
@@ -14,7 +12,7 @@ pnpm --version       # 查看 pnpm 版本；项目要求 11.16 或更高
 python3 --version    # 查看 Python 版本；项目要求 3.9 或更高
 ```
 
-如果服务器还没有 Node.js、pnpm 或 Python，请先按服务器管理员的方式安装。项目不会替你安装系统软件。
+如果服务器还没有 Node.js、pnpm 或 Python，请先联系服务器管理员或自行安装。项目不会替你安装系统软件。
 
 使用 Git 下载项目（推荐）：
 
@@ -24,14 +22,11 @@ git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git  
 cd virtuoso-canvas  # 进入项目根目录
 ```
 
-其中 `/path/where/you/keep/projects` 换成你自己的目录，例如 `$HOME/projects`。如果你已经用普通方式 clone 过项目，需要补下载上游 submodule：
+其中 `/path/where/you/keep/projects` 换成你自己的目录，例如 `$HOME/projects`。锁定版本的 Analog Canvas 是为了防止Analog Canvas更新后，转换程序出BUG，所以需要使用兼容版本的Analog Canvas
 
-```bash
-cd /path/to/virtuoso-canvas  # 进入已经下载的项目
-git submodule update --init --recursive  # 补齐外层仓库记录的固定上游版本
-```
 
-也可以在 GitHub 页面选择 **Code → Download ZIP** 下载源码，但 ZIP 不会自动包含 `analog-canvas` 上游目录。使用 ZIP 时仍需单独取得与 `upstream-lock.json` 对应的上游代码，因此推荐使用上面的 `git clone --recurse-submodules`。
+
+也可以在 GitHub 页面选择 **Code → Download ZIP** 下载源码，但 ZIP 不会自动包含 `analog-canvas` 上游目录。使用 ZIP 时仍需单独取得与 `upstream-lock.json` 对应的上游代码，也就是对应版本的Analog Canvas。
 
 ## 二、首次安装依赖并构建
 
@@ -42,13 +37,14 @@ cd /path/to/virtuoso-canvas  # 进入项目根目录
 npm run setup  # 安装依赖、构建项目并运行自动测试
 ```
 
-这些命令只在首次安装、重新 clone 或更新项目代码后执行。它们的作用是：
+这两行的作用不同：
 
-- `pnpm install`：安装固定版本的 Analog Canvas 上游依赖；
-- `npm run build`：生成 Virtuoso 窗口和转换器需要的 `dist/`；
-- `npm test`：检查安装是否正常。
+- `cd /path/to/virtuoso-canvas` 只负责进入项目根目录；请把路径替换成实际安装位置。
+- `npm run setup` 是项目提供的统一安装命令。它在脚本内部依次执行依赖安装、项目构建和自动测试，用户不需要分别输入这些命令。
 
-如果服务器不能访问互联网，先在一台可以联网的同版本 Linux 机器上完成 `npm run setup`，然后把整个项目目录（包括 `analog-canvas/node_modules/` 和 `dist/`）复制或打包到服务器。服务器上不需要重新下载依赖，可以运行：
+`npm run setup` 只在首次安装、重新 clone 或更新项目代码后执行。它内部完成的步骤是：安装锁定版本的 Analog Canvas 依赖、生成 Virtuoso 窗口和转换器需要的 `dist/`，以及检查安装是否正常。
+
+如果服务器不能访问互联网，先在一台可以联网的同版本 Linux 机器上完成 `npm run setup`，然后把整个项目目录（包括 `analog-canvas/node_modules/` ）复制或打包到服务器。服务器上不需要重新下载依赖，可以运行：
 
 ```bash
 cd /path/to/virtuoso-canvas  # 进入项目根目录
@@ -72,7 +68,7 @@ node scripts/setup.mjs --offline --skip-tests  # 不访问网络，使用已有�
 
 ## 三、告诉 Virtuoso 项目在哪里
 
-如果项目路径是默认的 `/home/userone/projects/virtuoso-canvas`，可以直接使用。其他路径必须在**启动 Virtuoso 之前**设置 `VC_ROOT`：
+必须在**启动 Virtuoso 之前**设置 `VC_ROOT`：
 
 ```bash
 export VC_ROOT=/path/to/virtuoso-canvas  # 告诉 UI 项目安装在哪里
