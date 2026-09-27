@@ -14,7 +14,18 @@ python3 --version    # 查看 Python 版本；项目要求 3.9 或更高
 
 如果服务器还没有 Node.js、pnpm 或 Python，请先联系服务器管理员或自行安装。项目不会替你安装系统软件。
 
-使用 Git 下载项目（推荐）：
+### 方式 A：下载完整源码包（推荐给 Windows 用户）
+
+在 GitHub 仓库的 **Releases** 页面下载带有 `standalone` 或 `source-bundle` 名称的压缩包。这个压缩包已经把当前锁定版本的 `analog-canvas` 源码一并放入，不需要在 Windows 安装 Git，也不需要执行 submodule 命令：
+
+1. 登录 GitHub，打开本项目的 **Releases** 页面；
+2. 下载最新的完整源码包（通常是 `.zip` 或 `.tar.gz`）；
+3. 解压后把整个 `virtuoso-canvas-*` 文件夹复制到 Linux 服务器；
+4. 按下面“首次安装依赖并构建”的步骤，在 Linux 上运行 `npm run setup`。
+
+源码包包含锁定版本的 Analog Canvas 源码，但不包含 Linux 专用的 `node_modules/` 和 `dist/`。这些内容必须在 Linux 上安装或构建，不能从 Windows 直接复制使用。
+
+### 方式 B：Git 下载源码和 submodule
 
 ```bash
 cd /path/where/you/keep/projects  # 进入你要存放项目的目录
@@ -22,9 +33,17 @@ git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git  
 cd virtuoso-canvas  # 进入项目根目录
 ```
 
-其中 `/path/where/you/keep/projects` 换成你自己的目录，例如 `$HOME/projects`。锁定版本的 Analog Canvas 是为了防止Analog Canvas更新后，转换程序出BUG，所以需要使用兼容版本的Analog Canvas
+其中 `/path/where/you/keep/projects` 换成你自己的目录，例如 `$HOME/projects`。锁定版本的 Analog Canvas 是为了避免上游更新后与转换器不兼容，因此必须使用项目指定的兼容版本。
 
-也可以在 GitHub 页面选择 **Code → Download ZIP** 下载源码，但 ZIP 不会自动包含 `analog-canvas` 上游目录。使用 ZIP 时仍需单独取得与 `upstream-lock.json` 对应的上游代码，也就是对应版本的Analog Canvas。
+GitHub 项目首页的 **Code → Download ZIP** 只包含外层仓库，里面的 `analog-canvas` 只是一个 submodule 引用，不能作为完整安装包使用。除非你另外取得匹配的 Analog Canvas 源码，否则不要使用这个 ZIP。
+
+如果当前仓库还没有发布完整源码包，维护者可以在联网环境执行下面的命令生成它，再把生成的目录压缩后上传到 GitHub Release：
+
+```bash
+node scripts/package_standalone.mjs --out /tmp/virtuoso-canvas-release
+```
+
+这个命令会复制当前锁定版本的 Analog Canvas 源码、转换器、SKILL、脚本、测试和文档，不会复制个人配置、真实设计数据、`node_modules` 或 Git 历史。
 
 ## 二、首次安装依赖并构建
 
