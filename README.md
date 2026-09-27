@@ -8,9 +8,37 @@
 
 发布目录和上游 PR 暂存方式见 [发布与上游集成](docs/发布与上游集成.md)。两个产物都从 `packages/virtuoso-import/` 这一份转换核心生成，不维护第二份算法。
 
+## 开始前：你需要准备什么
+
+这个项目不是已经打包好的 Virtuoso 插件。使用 UI 前，需要在同一台机器上准备：
+
+- 已安装并可正常启动的 Cadence Virtuoso，且目标 schematic 可以在该环境中打开；
+- Node.js 24 或更新版本；
+- pnpm 11.16 或更新版本；
+- Python 3.9 或更新版本；
+- 本仓库及其 `analog-canvas` submodule；
+- 对项目目录和导出目录的读写权限。
+
+项目会在本机调用 Node、Python 和 Analog Canvas 上游代码，不会把原理图、PDK 或映射发送到网络。首次使用需要安装依赖并构建一次；以后只有更新代码或重新克隆工作区时才需要重新构建。
+
+如果项目不在默认目录，请在启动 Virtuoso **之前**设置安装目录：
+
+```bash
+export VC_ROOT=/path/to/virtuoso-canvas
+```
+
+如果系统中有多个 Node 或 Python，可以同时指定：
+
+```bash
+export VC_NODE_PATH=/path/to/node
+export VC_PYTHON=/path/to/python3
+```
+
+个人映射和配置默认写入 `$VC_ROOT/personal/`。需要放到其他位置时，在启动 Virtuoso 前设置 `VC_MAPPING_PATH` 和 `VC_CONFIG_PATH`。这些文件包含本机或 PDK 相关信息，默认已被 Git 忽略。
+
 ## 第一次使用：Virtuoso 窗口
 
-项目的主要入口是 Virtuoso 原生窗口。先完成一次构建，然后在 Virtuoso CIW 中加载界面：
+完成下面的安装和构建后，才加载 Virtuoso 窗口。构建会编译固定版本的 Analog Canvas、TypeScript CLI 以及 UI 调用的后端；它不是每次导出的操作。
 
 ```bash
 cd /home/userone/projects/virtuoso-canvas
@@ -36,7 +64,25 @@ VCUIShow()
 
 详细的窗口协议和结果回执见 [SKILL 前端协议](docs/SKILL前端协议.md)，配置字段见 [配置参考](docs/配置参考.md)。
 
-## 安装与构建
+## 文档导航
+
+普通用户主要需要阅读：
+
+- [配置参考](docs/配置参考.md)：个人配置、映射文件和环境变量；
+- [映射表指南](docs/mapping-packages.zh-CN.md)：器件、引脚和参数如何对应；
+- [Analog Canvas 符号表](docs/analog-canvas-catalog.zh-CN.md)：可用目标符号及支持状态；
+- [SKILL 前端协议](docs/SKILL前端协议.md)：UI 与本地后端的调用和回执。
+
+维护者或贡献者再阅读：
+
+- [代码与文件流程](docs/代码与文件流程.md)：转换核心、临时文件和校验流程；
+- [发布与上游集成](docs/发布与上游集成.md)：源码包、上游暂存包和许可证要求；
+- [默认映射来源](docs/builtin-mapping-sources.zh-CN.md)：内置映射的证据和适用范围；
+- [Git 跟踪范围](docs/Git跟踪范围.md)：哪些本机目录应忽略、哪些源码应提交。
+
+这些文档都不包含个人 PDK 文件或真实设计数据，因此可以随源码发布。开发流程说明不是 UI 使用必读内容；如果只面向普通用户，可以保留它们在仓库中但不放入首页操作步骤。
+
+## 安装与构建（首次使用或更新代码时）
 
 `analog-canvas/` 是由 `upstream-lock.json` 固定版本的 Git submodule。首次克隆请使用：
 
@@ -49,7 +95,7 @@ npm run build
 npm test
 ```
 
-需要 Node.js 24+、pnpm 11.16+ 和 Python 3.9+。不要提交 `personal/`、`work/`、`dist/`、`node_modules/`、日志、环境文件或真实设计快照。完整跟踪范围见 [Git 跟踪范围](docs/Git跟踪范围.md)。
+`pnpm install --frozen-lockfile` 只在 `analog-canvas/` 中执行；`npm run build` 在仓库根目录执行。构建成功后才会生成 `dist/`，Virtuoso UI 和 CLI 都依赖它。不要提交 `personal/`、`work/`、`dist/`、`node_modules/`、日志、环境文件或真实设计快照。完整跟踪范围见 [Git 跟踪范围](docs/Git跟踪范围.md)。
 
 ## CLI：批处理和调试入口
 
