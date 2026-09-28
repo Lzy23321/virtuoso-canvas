@@ -1,4 +1,4 @@
-<img width="721" height="644" alt="image" src="https://github.com/user-attachments/assets/128d1c6a-c59a-414b-95b8-031549c88ef6" /># Virtuoso to Analog Canvas
+# Virtuoso to Analog Canvas
 
 中文 | [English](README.en.md)
 
