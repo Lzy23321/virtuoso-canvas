@@ -1,4 +1,4 @@
-# Virtuoso to Analog Canvas
+<img width="721" height="644" alt="image" src="https://github.com/user-attachments/assets/128d1c6a-c59a-414b-95b8-031549c88ef6" /># Virtuoso to Analog Canvas
 
 中文 | [English](README.en.md)
 
@@ -17,13 +17,18 @@ git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
 cd virtuoso-canvas
 ```
 
-`--recurse-submodules` 会同时下载项目固定版本的 Analog Canvas。只下载 GitHub 页面上的 **Code → Download ZIP** 不够：那个 ZIP 不包含 Analog Canvas 的完整源码。
-
-如果不想放在 `$HOME/projects`，先进入你有写入权限的目录，再执行 `git clone --recurse-submodules ...`。例如放在 `/data/my-tools`：
+`--recurse-submodules` 会同时下载项目固定版本的 Analog Canvas。`$HOME/projects`为自己选择此项目存放的目录。如果不想放在 `$HOME/projects`，也可以自行制定，例如
 
 ```bash
-mkdir -p /data/my-tools
-cd /data/my-tools
+mkdir -p "/home/userone/Projects/test"
+```
+
+<img width="478" height="109" alt="image" src="https://github.com/user-attachments/assets/09cc93a4-c841-4132-ba90-ae3da6acc890" />
+
+先进入你有写入权限的目录，再执行 `git clone --recurse-submodules ...`。
+
+```bash
+cd /home/userone/Projects/virtuoso_canvas_test
 git clone --recurse-submodules https://github.com/Lzy23321/virtuoso-canvas.git
 cd virtuoso-canvas
 ```
@@ -35,6 +40,8 @@ cd virtuoso-canvas
 ```bash
 git submodule update --init --recursive
 ```
+
+<img width="1160" height="415" alt="image" src="https://github.com/user-attachments/assets/5b95a996-d371-4c55-8cdd-94964a9fb7c3" />
 
 ## 2. 安装依赖并构建
 
@@ -73,14 +80,18 @@ node --version
 ```bash
 npm run setup
 ```
+<img width="1249" height="414" alt="image" src="https://github.com/user-attachments/assets/c63545b3-9495-4e8a-8628-529f7277bc95" />
 
 这一个命令会安装 Analog Canvas 所需的依赖、构建项目并运行自动测试。首次安装或更新项目后运行即可；如果报错，先看终端末尾的错误信息，不要继续做下一步。通过 nvm 安装的 Node 24 也可供菜单脚本自动选择；从其他位置安装时，可在启动 Virtuoso 前设置 `VC_NODE_PATH` 为 Node 24 可执行文件的绝对路径。
+
+安装完成后会显示：
+<img width="763" height="201" alt="image" src="https://github.com/user-attachments/assets/78662952-50f2-4c9d-aaa8-0b9f2b2b2a8b" />
 
 ## 3. 在 Virtuoso 中加载菜单
 
 `VC_ROOT` 指向项目目录，**不要求在 `$HOME` 下**。根据 Virtuoso 是否已经打开，选择下面一种做法。
 
-**Virtuoso 已经打开：**在它的 **CIW** 中逐行输入，把第一行的路径换成实际项目目录：
+1. Virtuoso 已经打开：在它的 **CIW** 中逐行输入，把第一行的路径换成实际项目目录：
 
 ```lisp
 setShellEnvVar("VC_ROOT=/absolute/path/to/virtuoso-canvas")
@@ -90,12 +101,13 @@ load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_ui.il"))
 
 第二行应返回项目目录字符串，而不是 `nil`。如果 Node 24 不在 nvm 默认位置，还要在加载前于 CIW 输入 `setShellEnvVar("VC_NODE_PATH=/absolute/path/to/node")`。这些设置只作用于当前 Virtuoso 会话。如果此前已从**另一个项目路径**加载过本菜单，请重启 Virtuoso 后按下面的启动方式操作，避免沿用旧路径。
 
-**Virtuoso 尚未启动：**在平常用于启动 Virtuoso 的终端执行下面的命令，把路径换成工具仓库的实际位置；**不需要切换当前目录**：
+2. Virtuoso 尚未启动：在平常用于启动 Virtuoso 的终端执行下面的命令，把路径换成工具仓库的实际位置；**不需要切换当前目录**：
 
 ```bash
 export VC_ROOT="/absolute/path/to/virtuoso-canvas"
 test -f "$VC_ROOT/skill/virtuoso_canvas_ui.il" && echo "VC_ROOT OK: $VC_ROOT"
 ```
+<img width="661" height="180" alt="image" src="https://github.com/user-attachments/assets/bab42497-4233-4e06-9370-dad2446cbd38" />
 
 不要原样输入占位符；第二行应显示 `VC_ROOT OK`。保持你平常启动 Virtuoso 的目录和方式，**从这个已经设置变量的终端启动**（若 `virtuoso` 命令在 `PATH` 中，可输入 `virtuoso &`；否则使用公司提供的启动命令），然后在 CIW 输入：
 
@@ -120,6 +132,10 @@ load(strcat(getShellEnvVar("VC_ROOT") "/skill/virtuoso_canvas_init.il"))
 ```
 
 ## 4. 导出第一个工程
+<img width="2260" height="1243" alt="image" src="https://github.com/user-attachments/assets/0cb86e3d-0bb2-4a40-9262-df52be2b482b" />
+<img width="2260" height="1280" alt="image" src="https://github.com/user-attachments/assets/63dc6cde-3042-48a8-a5d2-13eea58017c1" />
+<img width="1285" height="57" alt="image" src="https://github.com/user-attachments/assets/30b1e43c-9774-49fb-8f9a-47d701da62d1" />
+<img width="2260" height="1280" alt="image" src="https://github.com/user-attachments/assets/544502dd-665c-4a8c-b659-2b520334af64" />
 
 1. 在 Virtuoso 打开并保存要转换的 schematic，从 **Schematic to Canvas** 菜单打开导出窗口。
 2. 点击 **Scan devices**。已识别的器件会显示对应的 Canvas 符号；未识别的器件默认画成保留外部引脚的方框。
